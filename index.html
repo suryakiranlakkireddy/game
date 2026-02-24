@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Flappy Aathu - Difficulty Levels</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
+    width: 100vw;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Menu Screens */
+.menu-screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 100;
+    gap: 30px;
+}
+
+.menu-screen.hidden {
+    display: none;
+}
+
+.title {
+    font-size: clamp(32px, 8vw, 72px);
+    font-weight: bold;
+    color: white;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.subtitle {
+    font-size: clamp(16px, 4vw, 28px);
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+}
+
+.difficulty-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.difficulty-btn {
+    padding: clamp(15px, 3vw, 25px) clamp(20px, 5vw, 40px);
+    font-size: clamp(16px, 3vw, 24px);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    min-width: clamp(100px, 25vw, 150px);
+}
+
+.difficulty-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+}
+
+.difficulty-btn:active {
+    transform: translateY(-1px);
+}
+
+.btn-easy {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    color: #1a1a1a;
+}
+
+.btn-medium {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: #1a1a1a;
+}
+
+.btn-hard {
+    background: linear-gradient(135deg, #ff5e62 0%, #ff3838 100%);
+    color: white;
+}
+
+#gameOverScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.9);
+    text-align: center;
+    color: white;
+    display: none;
+    z-index: 50;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    backdrop-filter: blur(5px);
+}
+
+#gameOverScreen h1 {
+    font-size: clamp(36px, 10vw, 60px);
+    color: #ff6b6b;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: 10px;
+}
+
+#gameOverScreen h2 {
+    font-size: clamp(24px, 6vw, 40px);
+    color: #ffd43b;
+    margin: 10px 0;
+}
+
+#gameOverScreen h3 {
+    font-size: clamp(18px, 5vw, 30px);
+    color: #74c0fc;
+}
+
+.level-display {
+    font-size: clamp(16px, 4vw, 24px);
+    color: #94d82d;
+    margin: 10px 0;
+}
+
+#gameOverScreen p {
+    font-size: clamp(14px, 3vw, 18px);
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 15px;
+}
+
+.menu-btn {
+    margin-top: 20px;
+    padding: clamp(10px, 2vw, 15px) clamp(25px, 5vw, 40px);
+    font-size: clamp(14px, 3vw, 18px);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: 2px solid white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.menu-btn:hover {
+    background: white;
+    color: #667eea;
+    transform: scale(1.05);
+}
+
+/* Level Modifier Screen */
+#levelModifierScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 20px;
+    display: none;
+}
+
+.modifier-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.modifier-title {
+    font-size: clamp(28px, 6vw, 40px);
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.difficulty-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: 2px solid white;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: clamp(12px, 2.5vw, 16px);
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #667eea;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.slider-group {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: none;
+}
+
+.slider-group.active {
+    display: block;
+}
+
+.slider-label {
+    color: white;
+    font-size: clamp(14px, 3vw, 18px);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.slider-value {
+    color: #ffd43b;
+    font-weight: bold;
+}
+
+.modify-btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.modify-btn-group button {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px 20px;
+    font-size: clamp(14px, 3vw, 16px);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    color: #1a1a1a;
+}
+
+.save-btn:hover {
+    transform: scale(1.05);
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #FFB347 0%, #FFA500 100%);
+    color: white;
+}
+
+.reset-btn:hover {
+    transform: scale(1.05);
+}
+
+.cancel-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid white;
+}
+
+.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+
+/* HUD Elements */
+#hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white;
+    font-size: clamp(18px, 3vw, 28px);
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+#difficulty-indicator {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: clamp(16px, 2.5vw, 24px);
+    font-weight: bold;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border: 2px solid white;
+    z-index: 10;
+}
+
+.difficulty-easy {
+    background: rgba(132, 250, 176, 0.3);
+    border-color: #84fab0;
+    color: #84fab0;
+}
+
+.difficulty-medium {
+    background: rgba(250, 112, 154, 0.3);
+    border-color: #fa709a;
+    color: #fee140;
+}
+
+.difficulty-hard {
+    background: rgba(255, 94, 98, 0.3);
+    border-color: #ff5e62;
+    color: #ff5e62;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.pulse {
+    animation: pulse 0.5s ease;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .difficulty-container {
+        flex-direction: column;
+        width: 90%;
+    }
+    
+    .difficulty-btn {
+        width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <!-- Main Menu -->
+    <div id="mainMenu" class="menu-screen">
+        <div class="title">🐦 Flappy Aathu</div>
+        <div class="subtitle">Choose Your Difficulty</div>
+        <div class="difficulty-container">
+            <button class="difficulty-btn btn-easy" onclick="startGame('easy')">🟢 EASY</button>
+            <button class="difficulty-btn btn-medium" onclick="startGame('medium')">🟠 MEDIUM</button>
+            <button class="difficulty-btn btn-hard" onclick="startGame('hard')">🔴 HARD</button>
+        </div>
+        <p style="color: white; margin-top: 40px; font-size: clamp(12px, 2.5vw, 16px);">
+            Click / Tap / Space / Arrow Up to Jump
+        </p>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen">
+        <h1>GAME OVER</h1>
+        <h2 id="finalScore">Score: 0</h2>
+        <h3 id="bestScore">Best: 0</h3>
+        <div class="level-display" id="levelDisplay">Level: EASY</div>
+        <p>Click / Tap / Press Arrow Up</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px;">
+            <button class="menu-btn" onclick="playAgain()" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color: #1a1a1a; flex: 1; min-width: 120px;">▶️ Play Again</button>
+            <button class="menu-btn" onclick="changeLevel()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); flex: 1; min-width: 120px;">📋 Change Level</button>
+        </div>
+    </div>
+
+    <!-- Level Modifier Screen -->
+    <div id="levelModifierScreen">
+        <div class="modifier-container">
+            <div class="modifier-title">⚙️ Customize Levels</div>
+            
+            <div class="difficulty-tabs">
+                <button class="tab-btn active" onclick="switchTab('easy')">🟢 EASY</button>
+                <button class="tab-btn" onclick="switchTab('medium')">🟠 MEDIUM</button>
+                <button class="tab-btn" onclick="switchTab('hard')">🔴 HARD</button>
+            </div>
+
+            <!-- Easy Settings -->
+            <div class="slider-group active" id="easy-settings">
+                <div class="slider-label">
+                    <span>Gravity</span>
+                    <span class="slider-value" id="easy-gravity-val">800</span>
+                </div>
+                <input type="range" min="400" max="1200" value="800" id="easy-gravity" oninput="updateValue('easy-gravity')">
+
+                <div class="slider-label">
+                    <span>Jump Force</span>
+                    <span class="slider-value" id="easy-jumpForce-val">-380</span>
+                </div>
+                <input type="range" min="-600" max="-200" value="-380" id="easy-jumpForce" oninput="updateValue('easy-jumpForce')">
+
+                <div class="slider-label">
+                    <span>Pipe Speed</span>
+                    <span class="slider-value" id="easy-pipeSpeed-val">180</span>
+                </div>
+                <input type="range" min="100" max="400" value="180" id="easy-pipeSpeed" oninput="updateValue('easy-pipeSpeed')">
+
+                <div class="slider-label">
+                    <span>Gap Size</span>
+                    <span class="slider-value" id="easy-gap-val">320</span>
+                </div>
+                <input type="range" min="150" max="400" value="320" id="easy-gap" oninput="updateValue('easy-gap')">
+
+                <div class="slider-label">
+                    <span>Pipe Spawn Time</span>
+                    <span class="slider-value" id="easy-pipeSpawnTime-val">2.2</span>
+                </div>
+                <input type="range" min="1" max="3" step="0.1" value="2.2" id="easy-pipeSpawnTime" oninput="updateValue('easy-pipeSpawnTime')">
+            </div>
+
+            <!-- Medium Settings -->
+            <div class="slider-group" id="medium-settings">
+                <div class="slider-label">
+                    <span>Gravity</span>
+                    <span class="slider-value" id="medium-gravity-val">1200</span>
+                </div>
+                <input type="range" min="400" max="1200" value="1200" id="medium-gravity" oninput="updateValue('medium-gravity')">
+
+                <div class="slider-label">
+                    <span>Jump Force</span>
+                    <span class="slider-value" id="medium-jumpForce-val">-480</span>
+                </div>
+                <input type="range" min="-600" max="-200" value="-480" id="medium-jumpForce" oninput="updateValue('medium-jumpForce')">
+
+                <div class="slider-label">
+                    <span>Pipe Speed</span>
+                    <span class="slider-value" id="medium-pipeSpeed-val">260</span>
+                </div>
+                <input type="range" min="100" max="400" value="260" id="medium-pipeSpeed" oninput="updateValue('medium-pipeSpeed')">
+
+                <div class="slider-label">
+                    <span>Gap Size</span>
+                    <span class="slider-value" id="medium-gap-val">250</span>
+                </div>
+                <input type="range" min="150" max="400" value="250" id="medium-gap" oninput="updateValue('medium-gap')">
+
+                <div class="slider-label">
+                    <span>Pipe Spawn Time</span>
+                    <span class="slider-value" id="medium-pipeSpawnTime-val">1.8</span>
+                </div>
+                <input type="range" min="1" max="3" step="0.1" value="1.8" id="medium-pipeSpawnTime" oninput="updateValue('medium-pipeSpawnTime')">
+            </div>
+
+            <!-- Hard Settings -->
+            <div class="slider-group" id="hard-settings">
+                <div class="slider-label">
+                    <span>Gravity</span>
+                    <span class="slider-value" id="hard-gravity-val">1600</span>
+                </div>
+                <input type="range" min="400" max="1200" value="1600" id="hard-gravity" oninput="updateValue('hard-gravity')">
+
+                <div class="slider-label">
+                    <span>Jump Force</span>
+                    <span class="slider-value" id="hard-jumpForce-val">-520</span>
+                </div>
+                <input type="range" min="-600" max="-200" value="-520" id="hard-jumpForce" oninput="updateValue('hard-jumpForce')">
+
+                <div class="slider-label">
+                    <span>Pipe Speed</span>
+                    <span class="slider-value" id="hard-pipeSpeed-val">360</span>
+                </div>
+                <input type="range" min="100" max="400" value="360" id="hard-pipeSpeed" oninput="updateValue('hard-pipeSpeed')">
+
+                <div class="slider-label">
+                    <span>Gap Size</span>
+                    <span class="slider-value" id="hard-gap-val">180</span>
+                </div>
+                <input type="range" min="150" max="400" value="180" id="hard-gap" oninput="updateValue('hard-gap')">
+
+                <div class="slider-label">
+                    <span>Pipe Spawn Time</span>
+                    <span class="slider-value" id="hard-pipeSpawnTime-val">1.4</span>
+                </div>
+                <input type="range" min="1" max="3" step="0.1" value="1.4" id="hard-pipeSpawnTime" oninput="updateValue('hard-pipeSpawnTime')">
+            </div>
+
+            <div class="modify-btn-group">
+                <button class="save-btn" onclick="saveModifiedLevels()">💾 Save & Play</button>
+                <button class="reset-btn" onclick="resetToDefault()">🔄 Reset</button>
+                <button class="cancel-btn" onclick="closeModifier()">✕ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- HUD During Game -->
+    <div id="hud">
+        <div id="scoreDisplay">Score: 0</div>
+        <div id="bestScoreDisplay" style="margin-top: 10px;">Best: 0</div>
+        <div id="difficultyStats" style="margin-top: 15px; font-size: clamp(12px, 2vw, 16px); opacity: 0.8; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
+            <div id="gravityDisplay">Gravity: 800</div>
+            <div id="speedDisplay">Speed: 180</div>
+            <div id="gapDisplay">Gap: 320</div>
+        </div>
+    </div>
+    
+    <div id="difficulty-indicator" class="difficulty-easy" style="display: none;">EASY</div>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+let bgImg = new Image();
+bgImg.src = "bg.png";
+
+let playerImg = new Image();
+playerImg.src = "player.png";
+
+let pipeImg = new Image();
+pipeImg.src = "pipe.png";
+
+/* -------- DIFFICULTY SETTINGS -------- */
+const difficultySettings = {
+    easy: {
+        gravity: 800,
+        jumpForce: -380,
+        pipeSpeed: 180,
+        gap: 320,
+        pipeSpawnTime: 2.2,
+        label: "EASY",
+        color: "#84fab0"
+    },
+    medium: {
+        gravity: 1200,
+        jumpForce: -480,
+        pipeSpeed: 260,
+        gap: 250,
+        pipeSpawnTime: 1.8,
+        label: "MEDIUM",
+        color: "#fa709a"
+    },
+    hard: {
+        gravity: 1600,
+        jumpForce: -520,
+        pipeSpeed: 360,
+        gap: 180,
+        pipeSpawnTime: 1.4,
+        label: "HARD",
+        color: "#ff5e62"
+    }
+};
+
+let currentDifficulty = 'easy';
+let settings = difficultySettings.easy;
+
+/* -------- GAME STATE -------- */
+let lastTime = 0;
+let pipeTimer = 0;
+
+let player = {
+    x: 120,
+    y: 0,
+    width: 65,
+    height: 65,
+    velocity: 0,
+    rotation: 0
+};
+
+let pipes = [];
+let score = 0;
+let highScore = {
+    easy: parseInt(localStorage.getItem("highScore_easy")) || 0,
+    medium: parseInt(localStorage.getItem("highScore_medium")) || 0,
+    hard: parseInt(localStorage.getItem("highScore_hard")) || 0
+};
+let gameOver = false;
+let gameRunning = false;
+
+function createPipe() {
+    let minGapTop = 100;
+    let maxGapTop = canvas.height - settings.gap - 100;
+    let topHeight = Math.random() * (maxGapTop - minGapTop) + minGapTop;
+    
+    pipes.push({
+        x: canvas.width,
+        top: topHeight,
+        bottom: topHeight + settings.gap,
+        passed: false,
+        width: 80
+    });
+}
+
+function update(delta) {
+    if (gameOver || !gameRunning) return;
+
+    // Physics - using difficulty settings
+    player.velocity += settings.gravity * delta;
+    player.y += player.velocity * delta;
+    
+    // Rotation based on velocity
+    player.rotation = Math.min(Math.max(player.velocity / 1000, -0.5), 0.5);
+
+    // Pipe spawning and movement - using difficulty settings
+    pipeTimer += delta;
+    if (pipeTimer > settings.pipeSpawnTime) {
+        createPipe();
+        pipeTimer = 0;
+    }
+
+    pipes.forEach(pipe => {
+        pipe.x -= settings.pipeSpeed * delta;
+
+        if (!pipe.passed && pipe.x + pipe.width < player.x) {
+            pipe.passed = true;
+            score++;
+            
+            // Pulse effect on score
+            document.getElementById("scoreDisplay").classList.add("pulse");
+            setTimeout(() => {
+                document.getElementById("scoreDisplay").classList.remove("pulse");
+            }, 500);
+        }
+
+        // Collision detection with difficulty-specific gap
+        const playerLeft = player.x;
+        const playerRight = player.x + player.width;
+        const playerTop = player.y;
+        const playerBottom = player.y + player.height;
+
+        if (playerRight > pipe.x && playerLeft < pipe.x + pipe.width) {
+            if (playerTop < pipe.top || playerBottom > pipe.bottom) {
+                endGame();
+            }
+        }
+    });
+
+    // Boundary collision
+    if (player.y + player.height > canvas.height || player.y < 0) {
+        endGame();
+    }
+
+    // Remove off-screen pipes
+    pipes = pipes.filter(pipe => pipe.x > -100);
+    
+    // Update HUD
+    document.getElementById("scoreDisplay").innerText = "Score: " + score;
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw background
+    if (bgImg.complete) {
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    } else {
+        // Fallback gradient if image not loaded
+        let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#87CEEB');
+        gradient.addColorStop(1, '#E0F6FF');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Draw pipes
+    pipes.forEach(pipe => {
+        if (pipeImg.complete) {
+            ctx.drawImage(pipeImg, pipe.x, 0, pipe.width, pipe.top);
+            ctx.drawImage(pipeImg, pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+        } else {
+            // Fallback rectangles
+            ctx.fillStyle = '#2ecc71';
+            ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+            ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+        }
+    });
+
+    // Draw player with rotation
+    ctx.save();
+    ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+    ctx.rotate(player.rotation);
+    
+    if (playerImg.complete) {
+        ctx.drawImage(playerImg, -player.width / 2, -player.height / 2, player.width, player.height);
+    } else {
+        // Fallback circle
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(0, 0, player.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#FFA500';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+    
+    ctx.restore();
+}
+
+function gameLoop(timestamp) {
+    let delta = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+
+    if (delta > 0.1) delta = 0.1; // Cap delta time to prevent jumps
+
+    update(delta);
+    draw();
+
+    requestAnimationFrame(gameLoop);
+}
+
+function startGame(difficulty) {
+    currentDifficulty = difficulty;
+    settings = difficultySettings[difficulty];
+    
+    // Hide menu
+    document.getElementById("mainMenu").classList.add("hidden");
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("levelModifierScreen").style.display = "none";
+    
+    // Reset game state with difficulty-specific settings
+    player.y = canvas.height / 2;
+    player.velocity = 0;
+    player.rotation = 0;
+    pipes = [];
+    score = 0;
+    gameOver = false;
+    gameRunning = true;
+    pipeTimer = 0;
+    lastTime = 0;
+    
+    // Apply difficulty-specific settings
+    console.log(`🎮 Starting ${settings.label} difficulty - Gravity: ${settings.gravity}, Speed: ${settings.pipeSpeed}, Gap: ${settings.gap}`);
+    
+    // Update difficulty indicator
+    const indicator = document.getElementById("difficulty-indicator");
+    indicator.className = "difficulty-indicator difficulty-" + difficulty;
+    indicator.textContent = settings.label;
+    indicator.style.display = "block";
+    indicator.style.borderColor = settings.color;
+    indicator.style.color = settings.color;
+    
+    // Update HUD
+    document.getElementById("scoreDisplay").innerText = "Score: 0";
+    document.getElementById("bestScoreDisplay").innerText = "Best: " + highScore[difficulty];
+    
+    // Update difficulty stats display
+    document.getElementById("gravityDisplay").innerText = "Gravity: " + settings.gravity;
+    document.getElementById("speedDisplay").innerText = "Speed: " + settings.pipeSpeed;
+    document.getElementById("gapDisplay").innerText = "Gap: " + settings.gap;
+    
+    requestAnimationFrame(gameLoop);
+}
+
+function endGame() {
+    if (gameOver) return;
+    gameOver = true;
+    gameRunning = false;
+
+    // Stop any sounds
+    const jumpSound = document.getElementById("jumpSound");
+    if (jumpSound) {
+        jumpSound.pause();
+        jumpSound.currentTime = 0;
+    }
+
+    // Play game over sound with loud volume
+    const gameOverSound = document.getElementById("gameOverSound");
+    if (gameOverSound) {
+        gameOverSound.pause();
+        gameOverSound.currentTime = 0;
+        gameOverSound.volume = 1.0;
+        gameOverSound.play().catch(() => {});
+    }
+
+    // Update high score
+    if (score > highScore[currentDifficulty]) {
+        highScore[currentDifficulty] = score;
+        localStorage.setItem("highScore_" + currentDifficulty, highScore[currentDifficulty]);
+    }
+
+    // Show game over screen
+    document.getElementById("finalScore").innerText = "Score: " + score;
+    document.getElementById("bestScore").innerText = "Best: " + highScore[currentDifficulty];
+    document.getElementById("levelDisplay").innerText = "Level: " + settings.label;
+    document.getElementById("gameOverScreen").style.display = "flex";
+}
+
+function jump() {
+    if (gameOver && !gameRunning) {
+        // Game over - restart
+        startGame(currentDifficulty);
+        return;
+    }
+
+    if (gameRunning) {
+        player.velocity = settings.jumpForce;
+
+        // Play jump sound
+        const jumpSound = document.getElementById("jumpSound");
+        if (jumpSound) {
+            jumpSound.pause();
+            jumpSound.currentTime = 0;
+            jumpSound.play().catch(() => {});
+        }
+    }
+}
+
+function backToMenu() {
+    gameRunning = false;
+    gameOver = true;
+    document.getElementById("mainMenu").classList.remove("hidden");
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("difficulty-indicator").style.display = "none";
+}
+
+function playAgain() {
+    startGame(currentDifficulty);
+}
+
+function changeLevel() {
+    gameRunning = false;
+    gameOver = true;
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("levelModifierScreen").style.display = "none";
+    document.getElementById("difficulty-indicator").style.display = "none";
+    document.getElementById("mainMenu").classList.remove("hidden");
+}
+
+function closeModifier() {
+    document.getElementById("levelModifierScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "flex";
+}
+
+function switchTab(difficulty) {
+    // Hide all settings
+    document.getElementById('easy-settings').classList.remove('active');
+    document.getElementById('medium-settings').classList.remove('active');
+    document.getElementById('hard-settings').classList.remove('active');
+    
+    // Remove active from all tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected settings
+    document.getElementById(difficulty + '-settings').classList.add('active');
+    event.target.classList.add('active');
+}
+
+function updateValue(id) {
+    const input = document.getElementById(id);
+    const valueDisplay = document.getElementById(id + '-val');
+    
+    // Format the display value
+    if (id.includes('pipeSpawnTime')) {
+        valueDisplay.textContent = parseFloat(input.value).toFixed(1);
+    } else if (id.includes('jumpForce')) {
+        valueDisplay.textContent = input.value;
+    } else {
+        valueDisplay.textContent = input.value;
+    }
+}
+
+function saveModifiedLevels() {
+    // Update easy
+    difficultySettings.easy.gravity = parseInt(document.getElementById('easy-gravity').value);
+    difficultySettings.easy.jumpForce = parseInt(document.getElementById('easy-jumpForce').value);
+    difficultySettings.easy.pipeSpeed = parseInt(document.getElementById('easy-pipeSpeed').value);
+    difficultySettings.easy.gap = parseInt(document.getElementById('easy-gap').value);
+    difficultySettings.easy.pipeSpawnTime = parseFloat(document.getElementById('easy-pipeSpawnTime').value);
+
+    // Update medium
+    difficultySettings.medium.gravity = parseInt(document.getElementById('medium-gravity').value);
+    difficultySettings.medium.jumpForce = parseInt(document.getElementById('medium-jumpForce').value);
+    difficultySettings.medium.pipeSpeed = parseInt(document.getElementById('medium-pipeSpeed').value);
+    difficultySettings.medium.gap = parseInt(document.getElementById('medium-gap').value);
+    difficultySettings.medium.pipeSpawnTime = parseFloat(document.getElementById('medium-pipeSpawnTime').value);
+
+    // Update hard
+    difficultySettings.hard.gravity = parseInt(document.getElementById('hard-gravity').value);
+    difficultySettings.hard.jumpForce = parseInt(document.getElementById('hard-jumpForce').value);
+    difficultySettings.hard.pipeSpeed = parseInt(document.getElementById('hard-pipeSpeed').value);
+    difficultySettings.hard.gap = parseInt(document.getElementById('hard-gap').value);
+    difficultySettings.hard.pipeSpawnTime = parseFloat(document.getElementById('hard-pipeSpawnTime').value);
+
+    // Save to localStorage
+    localStorage.setItem('customLevels', JSON.stringify(difficultySettings));
+
+    // Close modifier and go to main menu
+    document.getElementById("levelModifierScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("mainMenu").classList.remove("hidden");
+    document.getElementById("difficulty-indicator").style.display = "none";
+}
+
+function resetToDefault() {
+    difficultySettings.easy = {
+        gravity: 800,
+        jumpForce: -380,
+        pipeSpeed: 180,
+        gap: 320,
+        pipeSpawnTime: 2.2,
+        label: "EASY",
+        color: "#84fab0"
+    };
+    difficultySettings.medium = {
+        gravity: 1200,
+        jumpForce: -480,
+        pipeSpeed: 260,
+        gap: 250,
+        pipeSpawnTime: 1.8,
+        label: "MEDIUM",
+        color: "#fa709a"
+    };
+    difficultySettings.hard = {
+        gravity: 1600,
+        jumpForce: -520,
+        pipeSpeed: 360,
+        gap: 180,
+        pipeSpawnTime: 1.4,
+        label: "HARD",
+        color: "#ff5e62"
+    };
+
+    localStorage.removeItem('customLevels');
+
+    // Reset all sliders
+    document.getElementById('easy-gravity').value = 800;
+    document.getElementById('easy-jumpForce').value = -380;
+    document.getElementById('easy-pipeSpeed').value = 180;
+    document.getElementById('easy-gap').value = 320;
+    document.getElementById('easy-pipeSpawnTime').value = 2.2;
+
+    document.getElementById('medium-gravity').value = 1200;
+    document.getElementById('medium-jumpForce').value = -480;
+    document.getElementById('medium-pipeSpeed').value = 260;
+    document.getElementById('medium-gap').value = 250;
+    document.getElementById('medium-pipeSpawnTime').value = 1.8;
+
+    document.getElementById('hard-gravity').value = 1600;
+    document.getElementById('hard-jumpForce').value = -520;
+    document.getElementById('hard-pipeSpeed').value = 360;
+    document.getElementById('hard-gap').value = 180;
+    document.getElementById('hard-pipeSpawnTime').value = 1.4;
+
+    // Update displays
+    updateAllValues();
+
+    alert('Levels reset to default!');
+}
+
+function updateAllValues() {
+    const sliders = document.querySelectorAll('input[type="range"]');
+    sliders.forEach(slider => {
+        const valueDisplay = document.getElementById(slider.id + '-val');
+        if (valueDisplay) {
+            if (slider.id.includes('pipeSpawnTime')) {
+                valueDisplay.textContent = parseFloat(slider.value).toFixed(1);
+            } else {
+                valueDisplay.textContent = slider.value;
+            }
+        }
+    });
+}
+
+// Load custom levels from localStorage on startup
+function loadCustomLevels() {
+    const saved = localStorage.getItem('customLevels');
+    if (saved) {
+        const custom = JSON.parse(saved);
+        Object.assign(difficultySettings.easy, custom.easy);
+        Object.assign(difficultySettings.medium, custom.medium);
+        Object.assign(difficultySettings.hard, custom.hard);
+        
+        // Update sliders to match loaded values
+        document.getElementById('easy-gravity').value = custom.easy.gravity;
+        document.getElementById('easy-jumpForce').value = custom.easy.jumpForce;
+        document.getElementById('easy-pipeSpeed').value = custom.easy.pipeSpeed;
+        document.getElementById('easy-gap').value = custom.easy.gap;
+        document.getElementById('easy-pipeSpawnTime').value = custom.easy.pipeSpawnTime;
+
+        document.getElementById('medium-gravity').value = custom.medium.gravity;
+        document.getElementById('medium-jumpForce').value = custom.medium.jumpForce;
+        document.getElementById('medium-pipeSpeed').value = custom.medium.pipeSpeed;
+        document.getElementById('medium-gap').value = custom.medium.gap;
+        document.getElementById('medium-pipeSpawnTime').value = custom.medium.pipeSpawnTime;
+
+        document.getElementById('hard-gravity').value = custom.hard.gravity;
+        document.getElementById('hard-jumpForce').value = custom.hard.jumpForce;
+        document.getElementById('hard-pipeSpeed').value = custom.hard.pipeSpeed;
+        document.getElementById('hard-gap').value = custom.hard.gap;
+        document.getElementById('hard-pipeSpawnTime').value = custom.hard.pipeSpawnTime;
+
+        updateAllValues();
+    }
+}
+
+/* -------- CONTROLS -------- */
+document.addEventListener("click", jump);
+document.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    jump();
+});
+
+document.addEventListener("keydown", function(e) {
+    if (e.code === "ArrowUp" || e.code === "Space") {
+        e.preventDefault();
+        jump();
+    }
+});
+/* -------------------------- */
+
+// Prevent accidental zoom
+document.addEventListener('touchmove', function(e) {
+    if (e.scale !== 1) {
+        e.preventDefault();
+    }
+}, false);
+
+// Initialize on load
+window.addEventListener('load', () => {
+    loadCustomLevels();
+    requestAnimationFrame(gameLoop);
+});
+</script>
+
+<audio id="jumpSound" src="jump.mp3" volume="1.0"></audio>
+<audio id="gameOverSound" src="gameover.mp3" volume="1.0"></audio>
+
+</body>
+</html>
