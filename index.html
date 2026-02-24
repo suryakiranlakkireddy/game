@@ -379,6 +379,19 @@ input[type="range"] {
 <body>
 
 <div id="gameContainer">
+    <!-- Level Selection Screen (for changing levels) -->
+    <div id="levelSelectScreen" class="menu-screen" style="display: none;">
+        <div class="title">🎮 Switch Level</div>
+        <div class="subtitle" id="currentLevelDisplay">Currently Playing: EASY</div>
+        <div style="margin-top: 10px; margin-bottom: 30px; font-size: clamp(14px, 3vw, 18px); color: rgba(255,255,255,0.8);">Choose a different level:</div>
+        <div class="difficulty-container">
+            <button class="difficulty-btn btn-easy" onclick="startGame('easy')" style="border: 3px solid #84fab0;" id="easyBtn">🟢 EASY</button>
+            <button class="difficulty-btn btn-medium" onclick="startGame('medium')" id="mediumBtn">🟠 MEDIUM</button>
+            <button class="difficulty-btn btn-hard" onclick="startGame('hard')" id="hardBtn">🔴 HARD</button>
+        </div>
+        <button class="menu-btn" onclick="backToGameOver()" style="margin-top: 40px;">✕ Back to Game Over</button>
+    </div>
+
     <!-- Main Menu -->
     <div id="mainMenu" class="menu-screen">
         <div class="title">🐦 Flappy Aathu</div>
@@ -754,10 +767,11 @@ function startGame(difficulty) {
     currentDifficulty = difficulty;
     settings = difficultySettings[difficulty];
     
-    // Hide menu
+    // Hide all screens
     document.getElementById("mainMenu").classList.add("hidden");
     document.getElementById("gameOverScreen").style.display = "none";
     document.getElementById("levelModifierScreen").style.display = "none";
+    document.getElementById("levelSelectScreen").style.display = "none";
     
     // Reset game state with difficulty-specific settings
     player.y = canvas.height / 2;
@@ -860,16 +874,36 @@ function playAgain() {
 }
 
 function changeLevel() {
-    gameRunning = false;
-    gameOver = true;
     document.getElementById("gameOverScreen").style.display = "none";
-    document.getElementById("levelModifierScreen").style.display = "none";
-    document.getElementById("difficulty-indicator").style.display = "none";
-    document.getElementById("mainMenu").classList.remove("hidden");
+    
+    // Update current level display
+    document.getElementById("currentLevelDisplay").innerText = `Currently Playing: ${settings.label}`;
+    
+    // Remove highlight from all buttons and highlight current level
+    document.getElementById("easyBtn").style.border = "3px solid transparent";
+    document.getElementById("mediumBtn").style.border = "3px solid transparent";
+    document.getElementById("hardBtn").style.border = "3px solid transparent";
+    
+    // Highlight the current level
+    if (currentDifficulty === 'easy') {
+        document.getElementById("easyBtn").style.border = "3px solid #84fab0";
+    } else if (currentDifficulty === 'medium') {
+        document.getElementById("mediumBtn").style.border = "3px solid #fa709a";
+    } else {
+        document.getElementById("hardBtn").style.border = "3px solid #ff5e62";
+    }
+    
+    document.getElementById("levelSelectScreen").style.display = "flex";
+}
+
+function backToGameOver() {
+    document.getElementById("levelSelectScreen").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "flex";
 }
 
 function closeModifier() {
     document.getElementById("levelModifierScreen").style.display = "none";
+    document.getElementById("levelSelectScreen").style.display = "none";
     document.getElementById("gameOverScreen").style.display = "flex";
 }
 
